@@ -1,13 +1,19 @@
 Exploratory Data Analysis - Course Project 2
 ============================================
 
-**NOTE: My work and answers to the questions are at the bottom of this document.**
+**NOTE: This work is to show an exploratory interaction with the data using R.**
 
 # Introduction
 
-Fine particulate matter (PM2.5) is an ambient air pollutant for which there is strong evidence that it is harmful to human health. In the United States, the Environmental Protection Agency (EPA) is tasked with setting national ambient air quality standards for fine PM and for tracking the emissions of this pollutant into the atmosphere. Approximatly every 3 years, the EPA releases its database on emissions of PM2.5. This database is known as the National Emissions Inventory (NEI). You can read more information about the NEI at the EPA National [Emissions Inventory web site](http://www.epa.gov/ttn/chief/eiinformation.html).
+Fine particulate matter (PM2.5) is an ambient air pollutant for which there is strong evidence that it is harmful to human health. In the United States, the Environmental Protection Agency (EPA) is tasked with setting national ambient air quality standards for fine PM and for tracking the emissions of this pollutant into the atmosphere. Approximatly every 3 years, the EPA releases its database on emissions of PM2.5. This database is known as the National Emissions Inventory (NEI). You can read more information about the NEI at the [EPA National Emissions Inventory web site]http://www.epa.gov/ttn/chief/eiinformation.html.
 
 For each year and for each type of PM source, the NEI records how many tons of PM2.5 were emitted from that source over the course of the entire year. The data that you will use for this assignment are for 1999, 2002, 2005, and 2008.
+
+# Review criterialess 
+For each question
+
+1. Does the plot appear to address the question being asked?
+2. Is the submitted R code appropriate for construction of the submitted plot?
 
 # Data
 
@@ -49,7 +55,7 @@ as long as each of those files is in your current working directory (check by ca
 
 # Assignment
 
-The overall goal of this assignment is to explore the National Emissions Inventory database and see what it say about fine particulate matter pollution in the United states over the 10-year period 1999–2008. You may use any R package you want to support your analysis.
+The overall goal of this assignment is to explore the National Emissions Inventory database and see what it says about fine particulate matter pollution in the United states over the 10-year period 1999–2008. You may use any R package you want to support your analysis.
 
 ## Making and Submitting Plots
 
@@ -90,7 +96,34 @@ You must address the following questions and tasks in your exploratory analysis.
 
 ### Question 1
 
-First we'll aggregate the total PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008.
+Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? Using the base plotting system, make a plot showing the total PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008
+
+### Checking out the data a bit
+
+```{r}
+
+s99 <- baltimoreNEI[baltimoreNEI$year == 1999,]
+s99m = mean(s99$Emissions, tr=0.2)
+
+s02 <- baltimoreNEI[baltimoreNEI$year == 2002,]
+s02m = mean(s02$Emissions, tr=0.2)
+
+s05 <- baltimoreNEI[baltimoreNEI$year == 2005,]
+s05m = mean(s05$Emissions, tr=0.2)
+
+s08 <- baltimoreNEI[baltimoreNEI$year == 2008,]
+s08m = mean(s08$Emissions, tr=0.2)
+```
+Going to checkout the mean values with 20% trim
+and then compare that to the total sum values of each year.
+The question is for total, but I want to explore the data.
+```{r}
+par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
+ys = c('1999','2002', '2005', '2008')
+ms = c(s99m, s02m, s05m, s08m)
+plot(ys, ms, ylab="PM2.5 Emissions (mean)", xlab="Years", col="navy", type="h", lwd=4
+     , main="Mean PM2.5 Emissions From ALL US Sources")
+```
 
 ```{r aggTotals,cache=TRUE}
 aggTotals <- aggregate(Emissions ~ year,NEI, sum)
@@ -133,7 +166,7 @@ barplot(
 )
 ```
 
-**Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (fips == "24510") from 1999 to 2008?**
+**Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (𝚏𝚒𝚙𝚜 == "𝟸𝟺𝟻𝟷𝟶") from 1999 to 2008? Use the base plotting system to make a plot answering this question.**
 
 Overall total emissions from PM2.5 have decreased in Baltimore City, Maryland from 1999 to 2008.
 
