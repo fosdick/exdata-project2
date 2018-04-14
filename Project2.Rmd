@@ -98,21 +98,22 @@ You must address the following questions and tasks in your exploratory analysis.
 
 Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? Using the base plotting system, make a plot showing the total PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008
 
-### Checking out the data a bit
+### Checking out the data a bit and comparing two methods
 
 ```{r}
 
-s99 <- baltimoreNEI[baltimoreNEI$year == 1999,]
-s99m = mean(s99$Emissions, tr=0.2)
+s99 <- NEI[NEI$year == 1999,]
+s99m = sum(s99$Emissions)/10^6
 
-s02 <- baltimoreNEI[baltimoreNEI$year == 2002,]
-s02m = mean(s02$Emissions, tr=0.2)
+s02 <- NEI[NEI$year == 2002,]
+s02m = sum(s02$Emissions)/10^6
 
-s05 <- baltimoreNEI[baltimoreNEI$year == 2005,]
-s05m = mean(s05$Emissions, tr=0.2)
+s05 <- NEI[NEI$year == 2005,]
+s05m = sum(s05$Emissions)/10^6
 
-s08 <- baltimoreNEI[baltimoreNEI$year == 2008,]
-s08m = mean(s08$Emissions, tr=0.2)
+s08 <- NEI[NEI$year == 2008,]
+s08m = sum(s08$Emissions)/10^6
+
 ```
 Going to checkout the mean values with 20% trim
 and then compare that to the total sum values of each year.
@@ -132,13 +133,22 @@ aggTotals <- aggregate(Emissions ~ year,NEI, sum)
 Using the base plotting system, now we plot the total PM2.5 Emission from all sources,
 
 ```{r plot1}
+
+
 barplot(
   (aggTotals$Emissions)/10^6,
   names.arg=aggTotals$year,
   xlab="Year",
   ylab="PM2.5 Emissions (10^6 Tons)",
-  main="Total PM2.5 Emissions From All US Sources"
+  main="Total PM2.5 Emissions From All US Sources",
+  col="dodgerblue3"
 )
+```
+
+## draw a line with variable s08m to show that values in charts are equal even though the charts may not look like they do
+
+```{r}
+abline(h=s08m)
 ```
 
 **Have total emissions from PM2.5 decreased in the United States from 1999 to 2008?**
