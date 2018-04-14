@@ -118,22 +118,10 @@ s08m = sum(s08$Emissions)/10^6
 Going to checkout the mean values with 20% trim
 and then compare that to the total sum values of each year.
 The question is for total, but I want to explore the data.
-```{r}
-par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
-ys = c('1999','2002', '2005', '2008')
-ms = c(s99m, s02m, s05m, s08m)
-plot(ys, ms, ylab="PM2.5 Emissions (mean)", xlab="Years", col="navy", type="h", lwd=4
-     , main="Mean PM2.5 Emissions From ALL US Sources")
-```
+
 
 ```{r aggTotals,cache=TRUE}
 aggTotals <- aggregate(Emissions ~ year,NEI, sum)
-```
-
-Using the base plotting system, now we plot the total PM2.5 Emission from all sources,
-
-```{r plot1}
-
 
 barplot(
   (aggTotals$Emissions)/10^6,
@@ -143,13 +131,11 @@ barplot(
   main="Total PM2.5 Emissions From All US Sources",
   col="dodgerblue3"
 )
+abline(h=s08m)
 ```
 
 ## draw a line with variable s08m to show that values in charts are equal even though the charts may not look like they do
 
-```{r}
-abline(h=s08m)
-```
 
 **Have total emissions from PM2.5 decreased in the United States from 1999 to 2008?**
 
@@ -157,6 +143,7 @@ As we can see from the plot, total emissions have decreased in the US from 1999 
 
 ### Question 2
 
+Basically the same question but only using one fips ID
 First we aggregate total emissions from PM2.5 for Baltimore City, Maryland (fips="24510") from 1999 to 2008.
 
 ```{r baltimore,cache=TRUE}
@@ -174,7 +161,11 @@ barplot(
   ylab="PM2.5 Emissions (Tons)",
   main="Total PM2.5 Emissions From All Baltimore City Sources"
 )
+#simple check
+s08 <- baltimoreNEI[baltimoreNEI$year == 2008,]
+abline(h = sum(s08$Emissions, na.rm = T), col="green")
 ```
+
 
 **Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (𝚏𝚒𝚙𝚜 == "𝟸𝟺𝟻𝟷𝟶") from 1999 to 2008? Use the base plotting system to make a plot answering this question.**
 
@@ -205,7 +196,7 @@ The `non-road`, `nonpoint`, `on-road` source types have all seen decreased emiss
 
 The `point` source saw a slight increase overall from 1999-2008. Also note that the `point` source saw a significant increase until 2005 at which point it decreases again by 2008 to just above the starting values. 
 
-(Note that I did not catch this originally as I started off with a log scale on Emissions)
+
 
 ### Question 4
 
@@ -225,9 +216,12 @@ Note:  The SCC levels go from generic to specific. We assume that coal combustio
 ```{r plot4}
 library(ggplot2)
 
+y08 = combustionNEI[combustionNEI$year == 2008,]
+m08 = sum(y08$Emissions) /10^5
+
 ggp <- ggplot(combustionNEI,aes(factor(year),Emissions/10^5)) +
-  geom_bar(stat="identity",fill="grey",width=0.75) +
-  theme_bw() +  guides(fill=FALSE) +
+  geom_bar(stat="identity",fill="dodgerblue3",width=0.5) +
+  geom_hline(yintercept = m08, linetype="dashed", color = "green") +
   labs(x="year", y=expression("Total PM"[2.5]*" Emission (10^5 Tons)")) + 
   labs(title=expression("PM"[2.5]*" Coal Combustion Source Emissions Across US from 1999-2008"))
 
@@ -260,13 +254,19 @@ Finally we plot using ggplot2,
 
 ```{r plot5}
 library(ggplot2)
+
+y08 = baltimoreVehiclesNEI[baltimoreVehiclesNEI$year == 2008,]
+m08 = sum(y08$Emissions)
+
 ggp <- ggplot(baltimoreVehiclesNEI,aes(factor(year),Emissions)) +
-  geom_bar(stat="identity",fill="grey",width=0.75) +
+  geom_bar(stat="identity",fill="dodgerblue3",width=0.5) +
+  geom_hline(yintercept = m08, linetype="dashed", color = "green") +
   theme_bw() +  guides(fill=FALSE) +
   labs(x="year", y=expression("Total PM"[2.5]*" Emission (10^5 Tons)")) + 
   labs(title=expression("PM"[2.5]*" Motor Vehicle Source Emissions in Baltimore from 1999-2008"))
 
 print(ggp)
+
 ```
 
 **How have emissions from motor vehicle sources changed from 1999–2008 in Baltimore City?**
@@ -283,23 +283,48 @@ vehiclesBaltimoreNEI$city <- "Baltimore City"
 vehiclesLANEI <- vehiclesNEI[vehiclesNEI$fips=="06037",]
 vehiclesLANEI$city <- "Los Angeles County"
 bothNEI <- rbind(vehiclesBaltimoreNEI,vehiclesLANEI)
+
+yb99 = vehiclesBaltimoreNEI[bothNEI$year == 1999 & bothNEI$city == "Baltimore City",]
+mb99 = sum(yb08$Emissions)
+
+yLA99 = vehiclesLANEI[vehiclesLANEI$year == 1999,]
+mLA99 = sum(yLA08$Emissions)
+
+yb08 = vehiclesBaltimoreNEI[bothNEI$year == 2008 & bothNEI$city == "Baltimore City",]
+mb08 = sum(yb08$Emissions)
+
+yLA08 = vehiclesLANEI[vehiclesLANEI$year == 2008,]
+mLA08 = sum(yLA08$Emissions)
+
+yLA05 = vehiclesLANEI[vehiclesLANEI$year == 2005,]
+mLA05 = sum(yLA05$Emissions)
+# thinking about percent change vs total volume change?
+print((mLA05 - mLA99) / mLA05)
+print(c(((mb99 - mb08) / mb99), ((mLA08 - mLA99) / mLA08)))
+
+
+ld = data.frame(c(mb08),c(mLA08))
+colnames(ld) = c("Baltimore City", "Los Angeles County")
+ldData = c(mb08, mLA08);
 ```
 
 Now we plot using the ggplot2 system,
 
 ```{r plot6}
 library(ggplot2)
- 
+
 ggp <- ggplot(bothNEI, aes(x=factor(year), y=Emissions, fill=city)) +
  geom_bar(aes(fill=year),stat="identity") +
  facet_grid(scales="free", space="free", .~city) +
+ geom_hline(data=ld, aes(yintercept = ldData), color = "green") +
  guides(fill=FALSE) + theme_bw() +
- labs(x="year", y=expression("Total PM"[2.5]*" Emission (Kilo-Tons)")) + 
- labs(title=expression("PM"[2.5]*" Motor Vehicle Source Emissions in Baltimore & LA, 1999-2008"))
+ labs(x="year", y=expression("Total PM"[2.5]*" Emission (Tons)")) + 
+ labs(title=expression("PM"[2.5]*" Motor Vehicle Emissions in Baltimore & LA, 1999-2008"))
+ 
  
 print(ggp)
 ```
 
 **Which city has seen greater changes over time in motor vehicle emissions?**
 
-Los Angeles County has seen the greatest changes over time in motor vehicle emissions.
+Los Angeles County has seen the greatest changes over time by Total Emissions, but Baltimore has the bigger change by percent for motor vehicle emissions.

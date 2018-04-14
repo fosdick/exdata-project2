@@ -4,25 +4,34 @@ source("downloadArchive.R")
 NEI <- readRDS("summarySCC_PM25.rds")
 SCC <- readRDS("Source_Classification_Code.rds")
 
+head(SCC,3)
+
+
 # Subset coal combustion related NEI data
 # using grep to filter
 combustionRelated <- grepl("comb", SCC$SCC.Level.One, ignore.case=TRUE)
 coalRelated <- grepl("coal", SCC$SCC.Level.Four, ignore.case=TRUE) 
 coalCombustion <- (combustionRelated & coalRelated)
+summary(coalRelated)
 combustionSCC <- SCC[coalCombustion,]$SCC
 combustionNEI <- NEI[NEI$SCC %in% combustionSCC,]
-
+head(combustionNEI,3)
 png("plot4.png",width=480,height=480,units="px",bg="white")
 
 library(ggplot2)
+#library(ggpubr)
+
+y08 = combustionNEI[combustionNEI$year == 2008,]
+m08 = sum(y08$Emissions) /10^5
 
 ggp <- ggplot(combustionNEI,aes(factor(year),Emissions/10^5)) +
-  geom_point(stat="identity",fill="grey",width=0.75) +
-  theme_bw() +  guides(fill=FALSE) +
+  geom_bar(stat="identity",fill="dodgerblue3",width=0.5) +
+  geom_hline(yintercept = m08, linetype="dashed", color = "green") +
   labs(x="year", y=expression("Total PM"[2.5]*" Emission (10^5 Tons)")) + 
   labs(title=expression("PM"[2.5]*" Coal Combustion Source Emissions Across US from 1999-2008"))
 
 print(ggp)
+
 
 dev.off()
 

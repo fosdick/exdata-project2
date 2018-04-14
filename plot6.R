@@ -23,12 +23,36 @@ png("plot6.png",width=480,height=480,units="px",bg="transparent")
 
 library(ggplot2)
  
+head(vehiclesBaltimoreNEI, 2)
+yb99 = vehiclesBaltimoreNEI[bothNEI$year == 1999 & bothNEI$city == "Baltimore City",]
+mb99 = sum(yb08$Emissions)
+
+yLA99 = vehiclesLANEI[vehiclesLANEI$year == 1999,]
+mLA99 = sum(yLA08$Emissions)
+
+yb08 = vehiclesBaltimoreNEI[bothNEI$year == 2008 & bothNEI$city == "Baltimore City",]
+mb08 = sum(yb08$Emissions)
+
+yLA08 = vehiclesLANEI[vehiclesLANEI$year == 2008,]
+mLA08 = sum(yLA08$Emissions)
+
+yLA05 = vehiclesLANEI[vehiclesLANEI$year == 2005,]
+mLA05 = sum(yLA05$Emissions)
+print((mLA05 - mLA99) / mLA05)
+print(c(((mb99 - mb08) / mb99), ((mLA08 - mLA99) / mLA08)))
+
+
+ld = data.frame(c(mb08),c(mLA08))
+colnames(ld) = c("Baltimore City", "Los Angeles County")
+ldData = c(mb99, mLA99);
+
 ggp <- ggplot(bothNEI, aes(x=factor(year), y=Emissions, fill=city)) +
  geom_bar(aes(fill=year),stat="identity") +
  facet_grid(scales="free", space="free", .~city) +
+ geom_hline(data=ld, aes(yintercept = ldData), color = "green") +
  guides(fill=FALSE) + theme_bw() +
- labs(x="year", y=expression("Total PM"[2.5]*" Emission (Kilo-Tons)")) + 
- labs(title=expression("PM"[2.5]*" Motor Vehicle Source Emissions in Baltimore & LA, 1999-2008"))
+ labs(x="year", y=expression("Total PM"[2.5]*" Emission (Tons)")) + 
+ labs(title=expression("PM"[2.5]*" Motor Vehicle Emissions in Baltimore & LA, 1999-2008"))
  
 print(ggp)
 
